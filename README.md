@@ -112,7 +112,3 @@ http://localhost:3000
 \`\`\`bash
 npm start
 \`\`\`
-
-### Account Demo: 
-buidinhquyet2005@gmail.com  1234567
-nguyenvana@gmail.com  1234567
