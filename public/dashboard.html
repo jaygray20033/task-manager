@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager - Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- Redesigned header with better styling -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="header-left">
+            <h1>📋 Task Manager</h1>
+            <p class="header-subtitle">Quản lý công việc hiệu quả</p>
+          </div>
+          <div class="user-info">
+            <!-- Added Teams button -->
+            <a href="/teams.html" class="btn btn-secondary">👥 Teams</a>
+            <div class="user-avatar">
+              <span id="userInitial">?</span>
+            </div>
+            <div class="user-details">
+              <span id="userName" class="user-name">Loading...</span>
+              <span class="user-role">Người dùng</span>
+            </div>
+            <button id="logoutBtn" class="btn btn-secondary">Đăng xuất</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="dashboard-main">
+        <div class="container">
+          <!-- Updated upcoming tasks section with proper structure -->
+          <div class="upcoming-tasks-section" id="upcomingTasksSection">
+            <div class="section-header">
+              <h3>⏰ Công việc sắp đến hạn (24 giờ tới)</h3>
+              <span class="badge badge-warning" id="upcomingCount">0</span>
+            </div>
+            <div id="upcomingTasksList" class="upcoming-tasks-list">
+              <!-- Upcoming tasks will be loaded here -->
+            </div>
+            <div
+              id="upcomingEmptyState"
+              class="empty-state-small"
+              style="display: none"
+            >
+              <p>✅ Không có công việc nào sắp đến hạn</p>
+            </div>
+          </div>
+
+          <!-- Task Stats -->
+          <div class="task-stats">
+            <div class="stat-card stat-card-total">
+              <div class="stat-icon">📊</div>
+              <div class="stat-info">
+                <span class="stat-number" id="totalTasks">0</span>
+                <span class="stat-label">Tổng số công việc</span>
+              </div>
+            </div>
+            <div class="stat-card stat-card-active">
+              <div class="stat-icon">⏳</div>
+              <div class="stat-info">
+                <span class="stat-number" id="activeTasks">0</span>
+                <span class="stat-label">Chưa hoàn thành</span>
+              </div>
+            </div>
+            <div class="stat-card stat-card-completed">
+              <div class="stat-icon">✅</div>
+              <div class="stat-info">
+                <span class="stat-number" id="completedTasks">0</span>
+                <span class="stat-label">Đã hoàn thành</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Redesigned task input section -->
+          <div class="task-input-section">
+            <div class="section-header">
+              <h2>➕ Thêm công việc mới</h2>
+            </div>
+            <form id="taskForm">
+              <div class="task-input-grid">
+                <div class="input-wrapper">
+                  <label for="taskDescription">Mô tả công việc</label>
+                  <input
+                    type="text"
+                    id="taskDescription"
+                    placeholder="Nhập mô tả công việc..."
+                    required
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <label for="taskCategory">Hạng mục</label>
+                  <input
+                    type="text"
+                    id="taskCategory"
+                    placeholder="VD: Nấu ăn, Gặp đối tác..."
+                    list="categoryList"
+                  />
+                  <datalist id="categoryList">
+                    <!-- Categories will be populated dynamically -->
+                  </datalist>
+                </div>
+                <div class="input-wrapper">
+                  <label for="taskDueDate">Thời gian hẹn</label>
+                  <input type="datetime-local" id="taskDueDate" />
+                </div>
+                <div class="input-wrapper">
+                  <button type="submit" class="btn btn-primary btn-add">
+                    <span>➕</span> Thêm công việc
+                  </button>
+                </div>
+              </div>
+              <div class="input-hint">
+                💡 Thêm thời gian hẹn để nhận email nhắc nhở trước 1 giờ
+              </div>
+            </form>
+          </div>
+
+          <!-- Redesigned filters section -->
+          <div class="filters-section">
+            <div class="filters-group">
+              <label>Trạng thái:</label>
+              <div class="filters">
+                <button class="filter-btn active" data-filter="all">
+                  <span>📋</span> Tất cả
+                </button>
+                <button class="filter-btn" data-filter="active">
+                  <span>⏳</span> Chưa hoàn thành
+                </button>
+                <button class="filter-btn" data-filter="completed">
+                  <span>✅</span> Đã hoàn thành
+                </button>
+              </div>
+            </div>
+
+            <div class="filters-group">
+              <label for="categoryFilter">Hạng mục:</label>
+              <select id="categoryFilter" class="select-input">
+                <option value="all">Tất cả hạng mục</option>
+              </select>
+            </div>
+
+            <div class="filters-group">
+              <label for="sortBy">Sắp xếp:</label>
+              <select id="sortBy" class="select-input">
+                <option value="default">Mặc định</option>
+                <option value="dueDate">Thời hạn (sớm nhất)</option>
+                <option value="createdAt">Mới nhất</option>
+                <option value="createdAtOld">Cũ nhất</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Task List -->
+          <div class="task-list-section">
+            <div class="section-header">
+              <h2>📝 Danh sách công việc</h2>
+            </div>
+            <div id="taskList" class="task-list">
+              <!-- Tasks will be loaded here -->
+            </div>
+            <div id="emptyState" class="empty-state">
+              <div class="empty-icon">📭</div>
+              <p>Chưa có công việc nào</p>
+              <small>Hãy thêm công việc đầu tiên của bạn!</small>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+  </body>
+</html>

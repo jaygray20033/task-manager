@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager - Teams</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="header-left">
+            <h1>👥 Teams</h1>
+            <p class="header-subtitle">Quản lý nhóm và phân công công việc</p>
+          </div>
+          <div class="user-info">
+            <a href="/dashboard.html" class="btn btn-secondary"
+              >← Về Dashboard</a
+            >
+            <button id="logoutBtn" class="btn btn-secondary">Đăng xuất</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <div class="container">
+          <!-- Create Team Section -->
+          <div class="task-input-section">
+            <div class="section-header">
+              <h2>➕ Tạo nhóm mới</h2>
+            </div>
+            <form id="createTeamForm">
+              <div
+                class="task-input-grid"
+                style="grid-template-columns: 2fr 3fr auto"
+              >
+                <div class="input-wrapper">
+                  <label for="teamName">Tên nhóm</label>
+                  <input
+                    type="text"
+                    id="teamName"
+                    placeholder="VD: Dự án ABC..."
+                    required
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <label for="teamDescription">Mô tả</label>
+                  <input
+                    type="text"
+                    id="teamDescription"
+                    placeholder="Mô tả ngắn về nhóm..."
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <button type="submit" class="btn btn-primary btn-add">
+                    <span>➕</span> Tạo nhóm
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Join Team Section -->
+          <div class="join-team-section">
+            <h3>🔗 Tham gia nhóm</h3>
+            <form id="joinTeamForm">
+              <div class="join-team-input">
+                <input
+                  type="text"
+                  id="inviteCode"
+                  placeholder="Nhập mã mời (8 ký tự)..."
+                  maxlength="8"
+                  required
+                />
+                <button type="submit" class="btn btn-primary">Tham gia</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Teams List -->
+          <div class="teams-list-section">
+            <div class="section-header">
+              <h2>📋 Danh sách nhóm</h2>
+            </div>
+            <div id="teamsList" class="teams-grid">
+              <!-- Teams will be loaded here -->
+            </div>
+            <div id="emptyTeamsState" class="empty-state">
+              <div class="empty-icon">👥</div>
+              <p>Chưa có nhóm nào</p>
+              <small>Tạo nhóm mới hoặc tham gia nhóm bằng mã mời!</small>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Team Detail Modal -->
+    <div id="teamModal" class="modal">
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h2 id="modalTeamName">Team Name</h2>
+          <button class="modal-close" onclick="closeTeamModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Team Info -->
+          <div class="team-info-section">
+            <div class="team-info-item">
+              <strong>Mã mời:</strong>
+              <div class="invite-code-display">
+                <code id="teamInviteCode">XXXXXXXX</code>
+                <button class="btn-copy" onclick="copyInviteCode()">
+                  📋 Copy
+                </button>
+              </div>
+            </div>
+            <div class="team-info-item">
+              <strong>Mô tả:</strong>
+              <span id="teamDescription">-</span>
+            </div>
+          </div>
+
+          <!-- Members Section -->
+          <div class="team-section">
+            <div class="section-header-inline">
+              <h3>👥 Thành viên (<span id="memberCount">0</span>)</h3>
+              <button
+                class="btn btn-secondary btn-small"
+                onclick="showAddMemberForm()"
+              >
+                + Thêm thành viên
+              </button>
+            </div>
+
+            <!-- Thêm form để thêm thành viên qua email -->
+            <div
+              id="addMemberForm"
+              class="add-member-form"
+              style="display: none"
+            >
+              <form id="addMemberFormElement">
+                <div class="input-group">
+                  <input
+                    type="email"
+                    id="memberEmail"
+                    placeholder="Nhập email thành viên..."
+                    required
+                  />
+                  <button type="submit" class="btn btn-primary">Thêm</button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="hideAddMemberForm()"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div id="membersList" class="members-list">
+              <!-- Members will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Create Team Task -->
+          <div class="team-section">
+            <h3>➕ Tạo công việc nhóm</h3>
+            <form id="createTeamTaskForm">
+              <div class="team-task-form">
+                <div class="input-wrapper">
+                  <label for="teamTaskDescription">Mô tả công việc</label>
+                  <input
+                    type="text"
+                    id="teamTaskDescription"
+                    placeholder="Nhập mô tả công việc..."
+                    required
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <label for="teamTaskCategory">Hạng mục</label>
+                  <input
+                    type="text"
+                    id="teamTaskCategory"
+                    placeholder="VD: Thiết kế, Lập trình..."
+                  />
+                </div>
+              </div>
+
+              <!-- Assignments -->
+              <div class="assignments-section">
+                <h4>Phân công thành viên</h4>
+                <div id="assignmentsList" class="assignments-list">
+                  <!-- Assignment inputs will be added here -->
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  onclick="addAssignment()"
+                >
+                  + Thêm người
+                </button>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Tạo công việc
+              </button>
+            </form>
+          </div>
+
+          <!-- Team Tasks List -->
+          <div class="team-section">
+            <h3>📝 Công việc nhóm</h3>
+            <div id="teamTasksList" class="team-tasks-list">
+              <!-- Team tasks will be loaded here -->
+            </div>
+            <div id="emptyTeamTasksState" class="empty-state-small">
+              <p>Chưa có công việc nào</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/teams.js"></script>
+  </body>
+</html>
