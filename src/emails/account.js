@@ -6,16 +6,16 @@ const testSendGridConnection = async () => {
       !process.env.SENDGRID_API_KEY ||
       process.env.SENDGRID_API_KEY === "your_sendgrid_api_key_here"
     ) {
-      console.log("[Email] ❌ SendGrid API key not configured");
+      console.log("[Email]  SendGrid API key not configured");
       return false;
     }
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    console.log("[Email] ✅ SendGrid API key configured");
-    console.log(`[Email] ✅ Sender email: ${process.env.SENDER_EMAIL}`);
+    console.log("[Email]  SendGrid API key configured");
+    console.log(`[Email]  Sender email: ${process.env.SENDER_EMAIL}`);
     return true;
   } catch (error) {
-    console.error("[Email] ❌ SendGrid connection error:", error.message);
+    console.error("[Email]  SendGrid connection error:", error.message);
     return false;
   }
 };
@@ -140,7 +140,7 @@ const sendTaskReminderEmail = async (
       process.env.SENDGRID_API_KEY === "your_sendgrid_api_key_here"
     ) {
       console.log(
-        "[Email] ❌ SendGrid not configured. Skipping task reminder email."
+        "[Email] SendGrid not configured. Skipping task reminder email."
       );
       return;
     }
@@ -159,7 +159,7 @@ const sendTaskReminderEmail = async (
           });
 
     if (!email || !email.includes("@")) {
-      console.error("[Email] ❌ Invalid email address:", email);
+      console.error("[Email] Invalid email address:", email);
       return;
     }
 
@@ -190,11 +190,11 @@ const sendTaskReminderEmail = async (
     );
 
     const result = await sgMail.send(msg);
-    console.log(`[Email] ✅ Task reminder email sent successfully to ${email}`);
+    console.log(`[Email] Task reminder email sent successfully to ${email}`);
     console.log(`[Email] SendGrid response:`, result[0].statusCode);
   } catch (error) {
     console.error(
-      "[Email] ❌ Failed to send task reminder email:",
+      "[Email] Failed to send task reminder email:",
       error.message
     );
     // Thêm logging chi tiết lỗi từ SendGrid
