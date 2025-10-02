@@ -78,11 +78,11 @@ const checkTaskReminders = async () => {
         await task.save();
 
         console.log(
-          `[Task Reminder] ✅ Successfully sent reminder for task ${task._id}`
+          `[Task Reminder] Successfully sent reminder for task ${task._id}`
         );
       } catch (error) {
         console.error(
-          `[Task Reminder] ❌ Failed to send reminder for task ${task._id}:`,
+          `[Task Reminder] Failed to send reminder for task ${task._id}:`,
           error.message
         );
       }
@@ -90,13 +90,13 @@ const checkTaskReminders = async () => {
 
     console.log(`[Task Reminder] Check complete\n`);
   } catch (error) {
-    console.error("[Task Reminder] ❌ Error checking task reminders:", error);
+    console.error("[Task Reminder] Error checking task reminders:", error);
   }
 };
 
 const startTaskReminderJob = () => {
   console.log(
-    "[Task Reminder] 🚀 Starting task reminder job (runs every 10 minutes)"
+    "[Task Reminder] Starting task reminder job (runs every 10 minutes)"
   );
 
   checkTaskReminders();
