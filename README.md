@@ -1,6 +1,7 @@
 # Task Manager - Full-Stack Application
 
-<img width="1912" height="966" alt="image" src="https://github.com/user-attachments/assets/460bf851-d99c-4edc-b184-16465d061f49" />
+<img width="1912" height="966" alt="image" src="https://github.com/user-attachments/assets/5ba4ff1f-be85-4001-be94-f32abf50659c" />
+
 
 
 ## Introduction
