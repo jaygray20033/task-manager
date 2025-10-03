@@ -57,7 +57,7 @@ To run this project, you will need to add the following environment variables to
 - Mongoose v8.x - MongoDB object modeling
 - JWT - Authentication tokens
 - bcryptjs - Password hashing
-- SendGrid - Email service (optional)
+- SendGrid - Email service 
 - validator.js - Data validation
 
 **Frontend:**
