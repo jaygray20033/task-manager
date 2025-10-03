@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang cá nhân - Task Manager</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="header-left">
+            <h1>📋 Task Manager</h1>
+            <p class="header-subtitle">Trang cá nhân</p>
+          </div>
+          <div class="user-info">
+            <a href="/dashboard" class="btn btn-secondary"
+              >← Quay lại Dashboard</a
+            >
+
+            <button id="logoutBtn" class="btn btn-secondary">Đăng xuất</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <div class="container">
+          <div class="profile-container">
+            <div class="profile-card">
+            <div class="avatar-section-centered">
+                  <div
+                    class="user-avatar-large clickable"
+                    id="avatarPreview"
+                    title="Click để đổi ảnh"
+                  >
+                    <span id="avatarInitial">?</span>
+                  </div>
+                </div>
+                <div class="avatar-upload">
+                  <input
+                    type="file"
+                    id="avatarInput"
+                    accept="image/*"
+                    style="display: none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-card">
+              <div class="profile-tabs">
+                            <button class="profile-tab-btn active" data-tab="info">
+                                ℹ️ Thông tin cá nhân
+                            </button>
+                            <button class="profile-tab-btn" data-tab="password">
+                                🔒 Đổi mật khẩu
+                            </button>
+              </div>
+              
+              <!-- Wrapped profile form inside infoTab div properly -->
+              <div class="profile-tab-content active" id="infoTab">
+              <form id="profileForm">
+                <div class="form-group">
+                  <label for="userName">Tên hiển thị</label>
+                  <input type="text" id="userName" required />
+                </div>
+                <div class="form-group">
+                  <label for="userEmail">Email</label>
+                  <input type="email" id="userEmail" required />
+                </div>
+                <div class="form-group">
+                  <label for="userAge">Tuổi</label>
+                  <input type="number" id="userAge" min="0" />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  💾 Lưu thay đổi
+                </button>
+              </form>
+              </div>
+
+            <div class="profile-tab-content" id="passwordTab">
+              <form id="passwordForm">
+                <div class="form-group">
+                  <label for="newPassword">Mật khẩu mới</label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    minlength="7"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="confirmPassword">Xác nhận mật khẩu</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    minlength="7"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  🔑 Đổi mật khẩu
+                </button>
+              </form>
+            </div>
+            </div>
+
+            <div class="profile-card danger-zone">
+              <button class="btn btn-danger" id="deleteAccountBtn">
+                🗑️ Xóa tài khoản
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="/js/profile.js"></script>
+  </body>
+</html>

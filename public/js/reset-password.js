@@ -68,8 +68,13 @@ form.addEventListener("submit", async (e) => {
 
     // Redirect to login after 2 seconds
     setTimeout(() => {
+<<<<<<< HEAD
       window.location.href = "/index.html"
     }, 2000)
+=======
+      window.location.href = "/";
+    }, 2000);
+>>>>>>> fedb057 (new feat:personal page and file uploading)
   } catch (error) {
     messageDiv.textContent = error.message
     messageDiv.classList.add("error", "show")

@@ -7,6 +7,7 @@ const user = JSON.parse(localStorage.getItem("user") || "{}")
 
 // Redirect to login if not authenticated
 if (!token) {
+<<<<<<< HEAD
   window.location.href = "/index.html"
 }
 
@@ -28,6 +29,30 @@ const totalTasksEl = document.getElementById("totalTasks")
 const activeTasksEl = document.getElementById("activeTasks")
 const completedTasksEl = document.getElementById("completedTasks")
 const userInitialEl = document.getElementById("userInitial")
+=======
+  window.location.href = "/";
+}
+
+// DOM Elements
+const userNameEl = document.getElementById("userName");
+const logoutBtn = document.getElementById("logoutBtn");
+const taskForm = document.getElementById("taskForm");
+const taskDescriptionInput = document.getElementById("taskDescription");
+const taskCategoryInput = document.getElementById("taskCategory");
+const taskDueDateInput = document.getElementById("taskDueDate");
+const taskList = document.getElementById("taskList");
+const emptyState = document.getElementById("emptyState");
+const upcomingTasksList = document.getElementById("upcomingTasksList");
+const upcomingEmptyState = document.getElementById("upcomingEmptyState");
+const filterBtns = document.querySelectorAll(".filter-btn");
+const categoryFilterEl = document.getElementById("categoryFilter");
+const sortByEl = document.getElementById("sortBy");
+const totalTasksEl = document.getElementById("totalTasks");
+const activeTasksEl = document.getElementById("activeTasks");
+const completedTasksEl = document.getElementById("completedTasks");
+const userInitialEl = document.getElementById("userInitial");
+const userAvatarEl = document.querySelector(".user-avatar");
+>>>>>>> fedb057 (new feat:personal page and file uploading)
 
 // State
 let tasks = []
@@ -45,7 +70,17 @@ async function init() {
   if (userInitialEl && user.name) {
     userInitialEl.textContent = user.name.charAt(0).toUpperCase()
   }
+  if (userAvatarEl) {
+    userAvatarEl.style.cursor = "pointer";
+    userAvatarEl.addEventListener("click", () => {
+      window.location.href = "/profile";
+    });
+  }
 
+  // Load avatar if exists
+  if (user._id) {
+    loadUserAvatar();
+  }
   // Load tasks
   await loadTasks()
   await loadUpcomingTasks()
@@ -54,6 +89,30 @@ async function init() {
   setupEventListeners()
 
   setInterval(loadUpcomingTasks, 5 * 60 * 1000)
+}
+function loadUserAvatar() {
+  const avatarUrl = `${API_URL}/users/${user._id}/avatar`;
+  const img = new Image();
+
+  img.onload = () => {
+    if (userAvatarEl) {
+      userAvatarEl.style.backgroundImage = `url(${avatarUrl})`;
+      userAvatarEl.style.backgroundSize = "cover";
+      userAvatarEl.style.backgroundPosition = "center";
+      if (userInitialEl) {
+        userInitialEl.style.display = "none";
+      }
+    }
+  };
+
+  img.onerror = () => {
+    // Keep showing initial if avatar doesn't exist
+    if (userInitialEl) {
+      userInitialEl.style.display = "flex";
+    }
+  };
+
+  img.src = avatarUrl;
 }
 
 function setupEventListeners() {
@@ -397,9 +456,15 @@ async function logout() {
     console.error("Error logging out:", error)
   }
 
+<<<<<<< HEAD
   localStorage.removeItem("token")
   localStorage.removeItem("user")
   window.location.href = "/index.html"
+=======
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/index";
+>>>>>>> fedb057 (new feat:personal page and file uploading)
 }
 
 // Helper functions

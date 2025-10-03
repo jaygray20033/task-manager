@@ -38,6 +38,30 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
+app.get("/index", (req, res) => {
+  res.redirect("/");
+});
+
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/dashboard.html"));
+});
+
+app.get("/profile", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/profile.html"));
+});
+
+app.get("/teams", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/teams.html"));
+});
+
+app.get("/forgot-password", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/forgot-password.html"));
+});
+
+app.get("/reset-password", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/reset-password.html"));
+});
+
 app.listen(port, async () => {
   console.log(`Server is up on: http://localhost:${port}`);
 

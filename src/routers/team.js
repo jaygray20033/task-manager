@@ -3,8 +3,22 @@ const Team = require("../models/team");
 const TeamTask = require("../models/teamTask");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const multer = require("multer");
+const sharp = require("sharp");
 
 const router = new express.Router();
+
+const upload = multer({
+  limits: {
+    fileSize: 10000000, // 10MB
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|pdf|doc|docx|txt|zip)$/)) {
+      return cb(new Error("Please upload a valid file"));
+    }
+    cb(undefined, true);
+  },
+});
 
 // Create a new team
 router.post("/teams", auth, async (req, res) => {
@@ -158,11 +172,9 @@ router.post("/teams/:id/leave", auth, async (req, res) => {
     }
 
     if (team.owner.toString() === req.user._id.toString()) {
-      return res
-        .status(400)
-        .send({
-          error: "Owner cannot leave team. Transfer ownership or delete team.",
-        });
+      return res.status(400).send({
+        error: "Owner cannot leave team. Transfer ownership or delete team.",
+      });
     }
 
     team.members = team.members.filter(
@@ -402,6 +414,68 @@ router.delete("/teams/:teamId/tasks/:taskId", auth, async (req, res) => {
   }
 });
 
+router.post(
+  "/teams/:teamId/tasks/:taskId/assignments/:assignmentId/upload",
+  auth,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const team = await Team.findById(req.params.teamId);
+
+      if (!team) {
+        return res.status(404).send({ error: "Team not found" });
+      }
+
+      if (!team.isMember(req.user._id)) {
+        return res.status(403).send({ error: "Access denied" });
+      }
+
+      const task = await TeamTask.findOne({
+        _id: req.params.taskId,
+        team: team._id,
+      });
+
+      if (!task) {
+        return res.status(404).send({ error: "Task not found" });
+      }
+
+      const assignment = task.assignments.id(req.params.assignmentId);
+
+      if (!assignment) {
+        return res.status(404).send({ error: "Assignment not found" });
+      }
+
+      // Only the assigned user can upload file
+      if (assignment.user.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .send({ error: "Can only upload file for your own assignments" });
+      }
+
+      // Store file as base64
+      const fileBuffer = req.file.buffer;
+      const fileBase64 = fileBuffer.toString("base64");
+      const fileUrl = `data:${req.file.mimetype};base64,${fileBase64}`;
+
+      assignment.fileUrl = fileUrl;
+      assignment.fileName = req.file.originalname;
+
+      await task.save();
+
+      await task.populate("createdBy", "name email");
+      await task.populate("assignments.user", "name email");
+
+      res.send(task);
+    } catch (e) {
+      res.status(400).send({ error: e.message });
+    }
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
+
+// Add member to team
 router.post("/teams/:id/members", auth, async (req, res) => {
   try {
     const { email } = req.body;

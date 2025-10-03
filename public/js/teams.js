@@ -6,14 +6,24 @@ let teamMembers = []
 // Check authentication
 const token = localStorage.getItem("token")
 if (!token) {
+<<<<<<< HEAD
   window.location.href = "/index.html"
+=======
+  window.location.href = "/";
+>>>>>>> fedb057 (new feat:personal page and file uploading)
 }
 
 // Logout
 document.getElementById("logoutBtn").addEventListener("click", () => {
+<<<<<<< HEAD
   localStorage.removeItem("token")
   window.location.href = "/index.html"
 })
+=======
+  localStorage.removeItem("token");
+  window.location.href = "/";
+});
+>>>>>>> fedb057 (new feat:personal page and file uploading)
 
 // Load teams on page load
 loadTeams()
@@ -149,6 +159,14 @@ async function openTeamModal(teamId) {
     document.getElementById("teamInviteCode").textContent = currentTeam.inviteCode
     document.getElementById("teamDescription").textContent = currentTeam.description || "Không có mô tả"
     document.getElementById("memberCount").textContent = currentTeam.members.length
+
+    // Show delete button if user is owner
+    const deleteTeamBtn = document.getElementById("deleteTeamBtn");
+    if (currentTeam.owner._id === currentUser?._id) {
+      deleteTeamBtn.style.display = "inline-block";
+    } else {
+      deleteTeamBtn.style.display = "none";
+    }
 
     // Load members
     loadMembers()
@@ -313,9 +331,10 @@ async function loadTeamTasks(teamId) {
         (task) => `
       <div class="team-task-item">
         <div class="team-task-header">
-          <div>
+          <div class="team-task-title-section">
             <div class="team-task-description">${task.description}</div>
             <div class="team-task-meta">
+<<<<<<< HEAD
               ${task.category ? `<span class="task-category-badge">${task.category}</span>` : ""}
               Tạo bởi: ${task.createdBy.name}
             </div>
@@ -330,11 +349,63 @@ async function loadTeamTasks(teamId) {
               <div>
                 <div class="assignment-user">${assignment.user.name}</div>
                 ${assignment.dueDate ? `<div class="assignment-due">Hạn: ${new Date(assignment.dueDate).toLocaleString("vi-VN")}</div>` : ""}
+=======
+              ${
+                task.category
+                  ? `<span class="task-category-badge">${task.category}</span>`
+                  : ""
+              }
+              <span class="task-creator">Tạo bởi: ${task.createdBy.name}</span>
+            </div>
+          </div>
+          <div class="team-task-header-right">
+            ${
+              currentTeam &&
+              (currentTeam.owner._id === currentUser?._id ||
+                currentTeam.members.find(
+                  (m) => m.user._id === currentUser?._id && m.role === "admin"
+                ))
+                ? `<button class="btn-delete-task" onclick="event.stopPropagation(); deleteTeamTask('${task._id}')">🗑️ Xóa</button>`
+                : ""
+            }
+          </div>
+        </div>
+        <div class="team-task-assignments">
+          ${task.assignments
+            .map((assignment) => {
+              console.log("[v0] Assignment data:", {
+                user: assignment.user.name,
+                completed: assignment.completed,
+                fileUrl: assignment.fileUrl,
+                fileName: assignment.fileName,
+              });
+
+              return `
+            <div class="assignment-display ${
+              assignment.completed ? "completed" : ""
+            }">
+              <div class="assignment-info">
+                <div class="assignment-user">
+                  <span class="assignment-avatar">${assignment.user.name
+                    .charAt(0)
+                    .toUpperCase()}</span>
+                  <span class="assignment-name">${assignment.user.name}</span>
+                </div>
+                ${
+                  assignment.dueDate
+                    ? `<div class="assignment-due">⏰ Hạn: ${new Date(
+                        assignment.dueDate
+                      ).toLocaleString("vi-VN")}</div>`
+                    : ""
+                }
+>>>>>>> fedb057 (new feat:personal page and file uploading)
               </div>
               <div class="assignment-actions">
                 ${
-                  assignment.user._id === currentUser?._id
+                  assignment.user._id === currentUser?._id &&
+                  !assignment.completed
                     ? `
+<<<<<<< HEAD
                   <button class="btn-complete ${assignment.completed ? "completed" : ""}" 
                     onclick="toggleAssignment('${task._id}', '${assignment._id}', ${!assignment.completed})">
                     ${assignment.completed ? "✓ Đã xong" : "Hoàn thành"}
@@ -343,11 +414,38 @@ async function loadTeamTasks(teamId) {
                     : assignment.completed
                       ? '<span style="color: #10b981; font-weight: 600;">✓ Đã xong</span>'
                       : '<span style="color: #999;">Chưa xong</span>'
+=======
+                  <label class="btn-upload">
+                    📎 Upload
+                    <input type="file" onchange="uploadAssignmentFile('${task._id}', '${assignment._id}', this.files[0])" style="display: none;">
+                  </label>
+                `
+                    : assignment.completed
+                    ? '<span class="assignment-status completed">✓ Đã xong</span>'
+                    : '<span class="assignment-status pending">⏳ Chưa xong</span>'
+>>>>>>> fedb057 (new feat:personal page and file uploading)
                 }
               </div>
+              ${
+                assignment.fileUrl && assignment.fileName
+                  ? `
+              <div class="assignment-file">
+                <a href="${assignment.fileUrl}" download="${assignment.fileName}" class="btn-download-file">
+                  📄 ${assignment.fileName}
+                  <span class="download-icon">⬇️</span>
+                </a>
+              </div>
+              `
+                  : ""
+              }
             </div>
+<<<<<<< HEAD
           `,
             )
+=======
+          `;
+            })
+>>>>>>> fedb057 (new feat:personal page and file uploading)
             .join("")}
         </div>
       </div>
@@ -444,6 +542,89 @@ document.getElementById("addMemberFormElement").addEventListener("submit", async
     alert(error.message)
   }
 })
+
+async function uploadAssignmentFile(taskId, assignmentId, file) {
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(
+      `${API_URL}/teams/${currentTeam._id}/tasks/${taskId}/assignments/${assignmentId}/upload`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to upload file");
+    }
+
+    await toggleAssignment(taskId, assignmentId, true);
+
+    alert("Upload file thành công!");
+    loadTeamTasks(currentTeam._id);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function deleteTeamTask(taskId) {
+  if (!confirm("Bạn có chắc muốn xóa công việc này?")) return;
+
+  try {
+    const response = await fetch(
+      `${API_URL}/teams/${currentTeam._id}/tasks/${taskId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to delete task");
+    }
+
+    alert("Xóa công việc thành công!");
+    loadTeamTasks(currentTeam._id);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function deleteTeam() {
+  if (!confirm("Bạn có chắc muốn xóa nhóm này? Tất cả công việc sẽ bị xóa!"))
+    return;
+
+  try {
+    const response = await fetch(`${API_URL}/teams/${currentTeam._id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to delete team");
+    }
+
+    alert("Xóa nhóm thành công!");
+    closeTeamModal();
+    loadTeams();
+  } catch (error) {
+    alert(error.message);
+  }
+}
 
 // Initialize
 loadCurrentUser()

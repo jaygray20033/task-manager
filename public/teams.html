@@ -15,9 +15,7 @@
             <p class="header-subtitle">Quản lý nhóm và phân công công việc</p>
           </div>
           <div class="user-info">
-            <a href="/dashboard.html" class="btn btn-secondary"
-              >← Về Dashboard</a
-            >
+            <a href="/dashboard" class="btn btn-secondary">← Về Dashboard</a>
             <button id="logoutBtn" class="btn btn-secondary">Đăng xuất</button>
           </div>
         </div>
@@ -221,6 +219,16 @@
               <p>Chưa có công việc nào</p>
             </div>
           </div>
+        </div>
+        <div class="modal-footer-actions">
+          <button
+            id="deleteTeamBtn"
+            class="btn-delete-team"
+            onclick="deleteTeam()"
+            style="display: none"
+          >
+            Xóa nhóm
+          </button>
         </div>
       </div>
     </div>

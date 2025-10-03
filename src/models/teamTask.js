@@ -20,6 +20,12 @@ const teamTaskAssignmentSchema = new mongoose.Schema({
   completedAt: {
     type: Date,
   },
+  fileUrl: {
+    type: String,
+  },
+  fileName: {
+    type: String,
+  },
 });
 
 const teamTaskSchema = new mongoose.Schema(

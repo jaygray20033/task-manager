@@ -151,23 +151,14 @@ body {
   background: #e0e0e0;
 }
 
-/* Added forgot password link styles */
-.forgot-password-link {
-  text-align: center;
-  margin-top: 20px;
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
 }
 
-.forgot-password-link a {
-  color: #667eea;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.forgot-password-link a:hover {
-  color: #764ba2;
-  text-decoration: underline;
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
 }
 
 /* Added message styles for success and error */
@@ -890,6 +881,247 @@ body {
   font-weight: 600;
 }
 
+/* Profile Page Styles */
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 30px;
+  padding: 32px;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.user-avatar-large {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 60px;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3),
+    0 0 0 8px rgba(102, 126, 234, 0.1);
+  margin-bottom: 20px;
+  border: 5px solid white;
+}
+
+.avatar-actions {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.avatar-section-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.user-avatar-large {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 60px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 5px solid white;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3),
+    0 0 0 8px rgba(102, 126, 234, 0.1);
+  margin-bottom: 20px;
+}
+
+.avatar-actions {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.avatar-upload {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-hint {
+  font-size: 13px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.danger-zone {
+  border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #fee 0%, #fcc 100%);
+}
+
+.danger-zone .section-header h2 {
+  color: #ef4444;
+}
+
+.danger-zone p {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px;
+  text-align: center;
+  color: white;
+}
+
+.profile-avatar-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #667eea;
+  font-weight: 700;
+  font-size: 48px;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.profile-name {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.profile-email {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.profile-body {
+  padding: 32px;
+}
+
+.profile-section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.profile-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-section h3 {
+  color: #333;
+  font-size: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-section h3 span {
+  font-size: 24px;
+}
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.profile-info-item {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+}
+
+.profile-info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.profile-info-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.profile-stat-card {
+  background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.profile-stat-card:hover {
+  border-color: #667eea;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+}
+
+.profile-stat-number {
+  font-size: 36px;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 8px;
+}
+
+.profile-stat-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-actions .btn {
+  flex: 1;
+  min-width: 200px;
+}
+
 /* Modal Styles */
 .modal {
   display: none;
@@ -966,6 +1198,18 @@ body {
 
 .modal-body {
   padding: 24px;
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 2px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  background: #fafafa;
+  position: sticky;
+  bottom: 0;
 }
 
 .team-info-section {
@@ -1160,209 +1404,229 @@ body {
 }
 
 .team-task-item {
-  background: #f9f9f9;
-  padding: 20px;
+  background: white;
+  padding: 24px;
   border-radius: 12px;
-  border: 2px solid transparent;
+  border: 2px solid #e0e0e0;
   transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .team-task-item:hover {
   border-color: #667eea;
-  background: #f5f7ff;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
 }
 
-.team-task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  margin-bottom: 12px;
+.team-task-title-section {
+  flex: 1;
 }
 
 .team-task-description {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .team-task-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.task-creator {
   font-size: 13px;
   color: #999;
-  margin-bottom: 16px;
-}
-
-.team-task-status {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.team-task-status.pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.team-task-status.in-progress {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-.team-task-status.completed {
-  background: #d4edda;
-  color: #155724;
 }
 
 .team-task-assignments {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .assignment-display {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: white;
-  border-radius: 8px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 10px;
   border-left: 4px solid #667eea;
+  transition: all 0.3s;
+}
+
+.assignment-display:hover {
+  background: #f5f7ff;
+  transform: translateX(4px);
 }
 
 .assignment-display.completed {
-  opacity: 0.6;
+  opacity: 0.7;
   border-left-color: #10b981;
+  background: #f0fdf4;
+}
+
+.assignment-info {
+  flex: 1;
 }
 
 .assignment-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.assignment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.assignment-name {
   font-weight: 600;
   color: #333;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .assignment-due {
   font-size: 12px;
   color: #999;
+  padding-left: 42px;
 }
 
 .assignment-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.btn-complete {
+.assignment-status {
   padding: 6px 12px;
-  background: #10b981;
-  color: white;
-  border: none;
   border-radius: 6px;
-  cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.3s;
 }
 
-.btn-complete:hover {
-  background: #059669;
+.assignment-status.completed {
+  background: #d4edda;
+  color: #155724;
 }
 
-.btn-complete.completed {
-  background: #e0e0e0;
-  color: #666;
+.assignment-status.pending {
+  background: #fff3cd;
+  color: #856404;
 }
 
-.empty-state-small {
-  text-align: center;
-  padding: 40px 20px;
-  color: #999;
+/* File upload display styling */
+.assignment-file {
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 8px;
+  border-left: 4px solid #10b981;
 }
 
-.empty-state-small p {
-  font-size: 14px;
-}
-
-/* Added styles for form thêm thành viên đẹp hơn */
-.section-header-inline {
+.btn-download-file {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.section-header-inline h3 {
-  margin: 0;
-  color: #333;
-  font-size: 18px;
-}
-
-.add-member-form {
-  background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 2px solid #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-}
-
-.add-member-form .input-group {
-  display: flex;
   gap: 12px;
-  align-items: center;
-}
-
-.add-member-form input[type="email"] {
-  flex: 1;
-  padding: 14px 18px;
-  border: 2px solid #667eea;
-  border-radius: 10px;
-  font-size: 15px;
-  background: white;
-  transition: all 0.3s;
-  font-weight: 500;
-}
-
-.add-member-form input[type="email"]:focus {
-  outline: none;
-  border-color: #764ba2;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
-  transform: translateY(-2px);
-}
-
-.add-member-form input[type="email"]::placeholder {
-  color: #999;
-  font-weight: 400;
-}
-
-.add-member-form .btn {
-  width: auto;
-  padding: 14px 28px;
-  font-size: 15px;
+  color: #155724;
+  text-decoration: none;
   font-weight: 600;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  font-size: 14px;
+  transition: all 0.3s;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
-.add-member-form .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.btn-download-file:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: translateX(4px);
 }
 
-.add-member-form .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+.download-icon {
+  font-size: 16px;
+  animation: bounce 2s infinite;
 }
 
-.add-member-form .btn-secondary {
-  background: white;
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Profile Tabs Styling */
+.profile-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 30px;
+  border-bottom: 3px solid #f0f0f0;
+}
+
+.profile-tab-btn {
+  flex: 1;
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.profile-tab-btn:hover {
   color: #667eea;
-  border: 2px solid #667eea;
-  box-shadow: none;
+  background: #f5f7ff;
 }
 
-.add-member-form .btn-secondary:hover {
+.profile-tab-btn.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
   background: #f5f7ff;
-  transform: translateY(-2px);
+}
+
+.profile-tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.profile-tab-content.active {
+  display: block !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive */
@@ -1415,4 +1679,132 @@ body {
   .add-member-form .btn {
     width: 100%;
   }
+
+  .profile-header {
+    padding: 30px 20px;
+  }
+
+  .profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+  }
+
+  .profile-name {
+    font-size: 24px;
+  }
+
+  .profile-body {
+    padding: 20px;
+  }
+
+  .profile-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+  }
+
+  .profile-actions .btn {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .avatar-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .user-avatar-large {
+    width: 120px;
+    height: 120px;
+    font-size: 48px;
+  }
+
+  .avatar-upload {
+    width: 100%;
+  }
+}
+
+/* Added styles for buttons */
+.btn-upload {
+  padding: 6px 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-upload:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.btn-view-file {
+  padding: 6px 12px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-view-file:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.btn-delete-task {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #fee;
+  color: #c33;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.btn-delete-task:hover {
+  background: #fcc;
+  transform: translateY(-2px);
+}
+
+.btn-delete-team {
+  padding: 10px 20px;
+  background: #fee;
+  color: #c33;
+  border: 2px solid #c33;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-delete-team:hover {
+  background: #fcc;
+  transform: translateY(-2px);
 }

@@ -78,7 +78,11 @@ loginForm.addEventListener("submit", async (e) => {
     console.log("[v0] Login successful, redirecting to dashboard")
 
     // Redirect to dashboard
+<<<<<<< HEAD
     window.location.href = "/dashboard.html"
+=======
+    window.location.href = "/dashboard";
+>>>>>>> fedb057 (new feat:personal page and file uploading)
   } catch (error) {
     console.error("[v0] Login error:", error)
     showError(loginError, error.message)
@@ -150,7 +154,11 @@ registerForm.addEventListener("submit", async (e) => {
     console.log("[v0] Register successful, redirecting to dashboard")
 
     // Redirect to dashboard
+<<<<<<< HEAD
     window.location.href = "/dashboard.html"
+=======
+    window.location.href = "/dashboard";
+>>>>>>> fedb057 (new feat:personal page and file uploading)
   } catch (error) {
     console.error("[v0] Register error:", error)
     showError(registerError, error.message)
@@ -172,8 +180,13 @@ function hideError(element) {
 
 // Check if already logged in
 if (localStorage.getItem("token")) {
+<<<<<<< HEAD
   console.log("[v0] User already logged in, redirecting to dashboard")
   window.location.href = "/dashboard.html"
+=======
+  console.log("[v0] User already logged in, redirecting to dashboard");
+  window.location.href = "/dashboard";
+>>>>>>> fedb057 (new feat:personal page and file uploading)
 }
 
 console.log("[v0] Auth.js loaded, API URL:", API_URL)
