@@ -4,13 +4,12 @@ const TeamTask = require("../models/teamTask");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const multer = require("multer");
-const sharp = require("sharp");
 
 const router = new express.Router();
 
 const upload = multer({
   limits: {
-    fileSize: 10000000, // 10MB
+    fileSize: 10000000,
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(jpg|jpeg|png|pdf|doc|docx|txt|zip)$/)) {
@@ -20,7 +19,6 @@ const upload = multer({
   },
 });
 
-// Create a new team
 router.post("/teams", auth, async (req, res) => {
   try {
     const team = new Team({
@@ -43,7 +41,6 @@ router.post("/teams", auth, async (req, res) => {
   }
 });
 
-// Get all teams for current user
 router.get("/teams", auth, async (req, res) => {
   try {
     const teams = await Team.find({
@@ -58,7 +55,6 @@ router.get("/teams", auth, async (req, res) => {
   }
 });
 
-// Get team by ID
 router.get("/teams/:id", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id)
@@ -79,7 +75,6 @@ router.get("/teams/:id", auth, async (req, res) => {
   }
 });
 
-// Update team
 router.patch("/teams/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "description"];
@@ -111,7 +106,6 @@ router.patch("/teams/:id", auth, async (req, res) => {
   }
 });
 
-// Delete team
 router.delete("/teams/:id", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -124,9 +118,7 @@ router.delete("/teams/:id", auth, async (req, res) => {
       return res.status(403).send({ error: "Only owner can delete team" });
     }
 
-    // Delete all team tasks
     await TeamTask.deleteMany({ team: team._id });
-
     await team.deleteOne();
     res.send({ message: "Team deleted successfully" });
   } catch (e) {
@@ -134,7 +126,6 @@ router.delete("/teams/:id", auth, async (req, res) => {
   }
 });
 
-// Join team with invite code
 router.post("/teams/join/:inviteCode", auth, async (req, res) => {
   try {
     const team = await Team.findOne({ inviteCode: req.params.inviteCode });
@@ -162,7 +153,6 @@ router.post("/teams/join/:inviteCode", auth, async (req, res) => {
   }
 });
 
-// Leave team
 router.post("/teams/:id/leave", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -188,7 +178,6 @@ router.post("/teams/:id/leave", auth, async (req, res) => {
   }
 });
 
-// Remove member from team
 router.delete("/teams/:id/members/:userId", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -216,7 +205,6 @@ router.delete("/teams/:id/members/:userId", auth, async (req, res) => {
   }
 });
 
-// Create team task
 router.post("/teams/:id/tasks", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -245,7 +233,6 @@ router.post("/teams/:id/tasks", auth, async (req, res) => {
   }
 });
 
-// Get all tasks for a team
 router.get("/teams/:id/tasks", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -269,7 +256,6 @@ router.get("/teams/:id/tasks", auth, async (req, res) => {
   }
 });
 
-// Update team task
 router.patch("/teams/:teamId/tasks/:taskId", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
@@ -320,7 +306,6 @@ router.patch("/teams/:teamId/tasks/:taskId", auth, async (req, res) => {
   }
 });
 
-// Mark assignment as completed
 router.patch(
   "/teams/:teamId/tasks/:taskId/assignments/:assignmentId/complete",
   auth,
@@ -351,7 +336,6 @@ router.patch(
         return res.status(404).send({ error: "Assignment not found" });
       }
 
-      // Only the assigned user can mark their assignment as complete
       if (assignment.user.toString() !== req.user._id.toString()) {
         return res
           .status(403)
@@ -375,7 +359,6 @@ router.patch(
   }
 );
 
-// Delete team task
 router.delete("/teams/:teamId/tasks/:taskId", auth, async (req, res) => {
   try {
     const team = await Team.findById(req.params.teamId);
@@ -397,7 +380,6 @@ router.delete("/teams/:teamId/tasks/:taskId", auth, async (req, res) => {
       return res.status(404).send({ error: "Task not found" });
     }
 
-    // Only creator or admin can delete
     if (
       task.createdBy.toString() !== req.user._id.toString() &&
       !team.isAdmin(req.user._id)
@@ -445,14 +427,12 @@ router.post(
         return res.status(404).send({ error: "Assignment not found" });
       }
 
-      // Only the assigned user can upload file
       if (assignment.user.toString() !== req.user._id.toString()) {
         return res
           .status(403)
           .send({ error: "Can only upload file for your own assignments" });
       }
 
-      // Store file as base64
       const fileBuffer = req.file.buffer;
       const fileBase64 = fileBuffer.toString("base64");
       const fileUrl = `data:${req.file.mimetype};base64,${fileBase64}`;
@@ -475,7 +455,6 @@ router.post(
   }
 );
 
-// Add member to team
 router.post("/teams/:id/members", auth, async (req, res) => {
   try {
     const { email } = req.body;
@@ -490,26 +469,22 @@ router.post("/teams/:id/members", auth, async (req, res) => {
       return res.status(404).send({ error: "Team not found" });
     }
 
-    // Only admin or owner can add members
     if (!team.isAdmin(req.user._id)) {
       return res.status(403).send({ error: "Only admins can add members" });
     }
 
-    // Find user by email
     const userToAdd = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (!userToAdd) {
       return res.status(404).send({ error: "User not found with this email" });
     }
 
-    // Check if already a member
     if (team.isMember(userToAdd._id)) {
       return res
         .status(400)
         .send({ error: "User is already a member of this team" });
     }
 
-    // Add member
     team.members.push({
       user: userToAdd._id,
       role: "member",

@@ -20,19 +20,23 @@ router.post("/users", async (req, res) => {
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
   } catch (e) {
+    console.error("[Registration Error]", e);
     res.status(400).send({ error: e.message || "Không thể tạo tài khoản" });
   }
 });
 
 router.post("/users/login", async (req, res) => {
   try {
+    console.log("[Login Attempt]", req.body.email);
     const user = await User.findByCredentials(
       req.body.email,
       req.body.password
     );
     const token = await user.generateAuthToken();
+    console.log("[Login Success]", user.email);
     res.send({ user, token });
   } catch (e) {
+    console.error("[Login Error]", e);
     res.status(400).send({ error: "Email hoặc mật khẩu không đúng" });
   }
 });
@@ -52,7 +56,7 @@ router.post("/users/forgot-password", async (req, res) => {
 
     const resetURL = `${req.protocol}://${req.get(
       "host"
-    )}/reset-password.html?token=${resetToken}`;
+    )}/reset-password?token=${resetToken}`;
 
     sendPasswordResetEmail(user.email, user.name, resetURL);
 
@@ -97,7 +101,6 @@ router.post("/users/logout", auth, async (req, res) => {
       return token.token !== req.token;
     });
     await req.user.save();
-
     res.send();
   } catch (e) {
     res.status(500).send();
@@ -156,7 +159,6 @@ const upload = multer({
     if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
       return cb(new Error("Please upload an image"));
     }
-
     cb(undefined, true);
   },
 });
