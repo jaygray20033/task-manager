@@ -121,6 +121,58 @@
             </div>
           </div>
 
+          <div class="team-section">
+            <div class="section-header-inline">
+              <h3>💬 Chat nhóm</h3>
+              <span class="online-indicator" id="chatStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Đang kết nối...</span>
+              </span>
+            </div>
+
+            <div class="chat-container">
+              <div class="chat-messages" id="chatMessages">
+                Messages will be loaded here
+              </div>
+
+              <div
+                class="chat-typing-indicator"
+                id="typingIndicator"
+                style="display: none"
+              >
+                <span class="typing-user"></span> đang nhập...
+              </div>
+
+              <form class="chat-input-form" id="chatForm">
+                <div class="chat-input-wrapper">
+                  <input
+                    type="text"
+                    id="chatInput"
+                    placeholder="Nhập tin nhắn..."
+                    maxlength="2000"
+                    autocomplete="off"
+                  />
+                  <button type="submit" class="btn-send-message" title="Gửi">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
           <!-- Members Section -->
           <div class="team-section">
             <div class="section-header-inline">
@@ -232,7 +284,7 @@
         </div>
       </div>
     </div>
-
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="/js/teams.js"></script>
   </body>
 </html>

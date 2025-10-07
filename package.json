@@ -29,9 +29,11 @@
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "sharp": "^0.33.1",
+    "socketio": "^1.0.0",
     "tailwind-merge": "3.3.1",
     "tailwindcss-animate": "1.0.7",
-    "validator": "^13.11.0"
+    "validator": "^13.11.0",
+    "websocket": "^1.0.35"
   },
   "devDependencies": {
     "@types/node": "24.6.1",

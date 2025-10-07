@@ -6,6 +6,11 @@ const API_URL =
 let currentUser = null;
 let currentTeam = null;
 let teamMembers = [];
+let socket = null;
+let typingTimeout = null;
+
+// Declare io variable
+const io = window.io;
 
 // Check authentication
 const token = localStorage.getItem("token");
@@ -19,8 +24,10 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   window.location.href = "/index.html";
 });
 
-// Load teams on page load
-loadTeams();
+// Load current user and teams on page load
+loadCurrentUser().then(() => {
+  loadTeams();
+});
 
 // Create team form
 document
@@ -28,10 +35,17 @@ document
   .addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById("teamName").value;
-    const description = document.getElementById("teamDescription").value;
+    const name = document.getElementById("teamName").value.trim();
+    const description = document.getElementById("teamDescription").value.trim();
+
+    if (!name) {
+      alert("Vui lòng nhập tên nhóm!");
+      return;
+    }
 
     try {
+      console.log("[v0] Creating team with:", { name, description });
+
       const response = await fetch(`${API_URL}/teams`, {
         method: "POST",
         headers: {
@@ -41,10 +55,16 @@ document
         body: JSON.stringify({ name, description }),
       });
 
+      console.log("[v0] Create team response status:", response.status);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error("[v0] Create team error:", error);
         throw new Error(error.error || "Failed to create team");
       }
+
+      const team = await response.json();
+      console.log("[v0] Team created successfully:", team);
 
       document.getElementById("teamName").value = "";
       document.getElementById("teamDescription").value = "";
@@ -52,6 +72,7 @@ document
       loadTeams();
       alert("Tạo nhóm thành công!");
     } catch (error) {
+      console.error("[v0] Team creation failed:", error);
       alert(error.message);
     }
   });
@@ -156,6 +177,195 @@ async function loadTeams() {
   }
 }
 
+function initializeSocket() {
+  if (socket) {
+    socket.disconnect();
+  }
+
+  socket = io(API_URL, {
+    auth: {
+      token: token,
+    },
+  });
+
+  socket.on("connect", () => {
+    console.log("[v0] Socket connected");
+    updateChatStatus("connected");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("[v0] Socket disconnected");
+    updateChatStatus("disconnected");
+  });
+
+  socket.on("error", (error) => {
+    console.error("[v0] Socket error:", error);
+    alert(error.message);
+  });
+
+  socket.on("load-messages", (messages) => {
+    console.log("[v0] Loaded messages:", messages.length);
+    displayMessages(messages);
+  });
+
+  socket.on("new-message", (message) => {
+    console.log("[v0] New message received:", message);
+    appendMessage(message);
+  });
+
+  socket.on("user-joined", (data) => {
+    console.log("[v0] User joined:", data.userName);
+    appendSystemMessage(`${data.userName} đã tham gia chat`);
+  });
+
+  socket.on("user-left", (data) => {
+    console.log("[v0] User left:", data.userName);
+    appendSystemMessage(`${data.userName} đã rời khỏi chat`);
+  });
+
+  socket.on("user-typing", (data) => {
+    console.log("[v0] User typing:", data.userName, data.isTyping);
+    showTypingIndicator(data.userName, data.isTyping);
+  });
+}
+
+function updateChatStatus(status) {
+  const statusElement = document.getElementById("chatStatus");
+  const statusText = statusElement.querySelector(".status-text");
+
+  statusElement.className = `online-indicator ${status}`;
+
+  if (status === "connected") {
+    statusText.textContent = "Đã kết nối";
+  } else if (status === "disconnected") {
+    statusText.textContent = "Mất kết nối";
+  } else {
+    statusText.textContent = "Đang kết nối...";
+  }
+}
+
+function displayMessages(messages) {
+  const chatMessages = document.getElementById("chatMessages");
+  chatMessages.innerHTML = "";
+
+  messages.forEach((message) => {
+    appendMessage(message, false);
+  });
+
+  scrollToBottom();
+}
+
+function appendMessage(message, shouldScroll = true) {
+  const chatMessages = document.getElementById("chatMessages");
+  const isOwnMessage = message.sender._id === currentUser._id;
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `chat-message ${isOwnMessage ? "own-message" : ""}`;
+
+  const time = new Date(message.createdAt).toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  messageDiv.innerHTML = `
+    <div class="message-avatar">${message.sender.name
+      .charAt(0)
+      .toUpperCase()}</div>
+    <div class="message-content">
+      ${
+        !isOwnMessage
+          ? `<div class="message-sender">${message.sender.name}</div>`
+          : ""
+      }
+      <div class="message-bubble">${escapeHtml(message.content)}</div>
+      <div class="message-time">${time}</div>
+    </div>
+  `;
+
+  chatMessages.appendChild(messageDiv);
+
+  if (shouldScroll) {
+    scrollToBottom();
+  }
+}
+
+function appendSystemMessage(text) {
+  const chatMessages = document.getElementById("chatMessages");
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "message-system";
+  messageDiv.textContent = text;
+  chatMessages.appendChild(messageDiv);
+  scrollToBottom();
+}
+
+function showTypingIndicator(userName, isTyping) {
+  const indicator = document.getElementById("typingIndicator");
+  const userSpan = indicator.querySelector(".typing-user");
+
+  if (isTyping) {
+    userSpan.textContent = userName;
+    indicator.style.display = "block";
+  } else {
+    indicator.style.display = "none";
+  }
+}
+
+function scrollToBottom() {
+  const chatMessages = document.getElementById("chatMessages");
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+document.getElementById("chatForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const input = document.getElementById("chatInput");
+  const content = input.value.trim();
+
+  if (!content || !socket || !currentTeam) return;
+
+  socket.emit("send-message", {
+    teamId: currentTeam._id,
+    content: content,
+  });
+
+  input.value = "";
+
+  // Stop typing indicator
+  socket.emit("typing", {
+    teamId: currentTeam._id,
+    isTyping: false,
+  });
+});
+
+document.getElementById("chatInput").addEventListener("input", (e) => {
+  if (!socket || !currentTeam) return;
+
+  // Clear previous timeout
+  if (typingTimeout) {
+    clearTimeout(typingTimeout);
+  }
+
+  // Emit typing event
+  socket.emit("typing", {
+    teamId: currentTeam._id,
+    isTyping: true,
+  });
+
+  // Stop typing after 2 seconds of no input
+  typingTimeout = setTimeout(() => {
+    socket.emit("typing", {
+      teamId: currentTeam._id,
+      isTyping: false,
+    });
+  }, 2000);
+});
+
 // Open team modal
 async function openTeamModal(teamId) {
   try {
@@ -192,6 +402,14 @@ async function openTeamModal(teamId) {
     // Load team tasks
     loadTeamTasks(teamId);
 
+    // Initialize socket for chat
+    initializeSocket();
+
+    // Join team room
+    if (socket) {
+      socket.emit("join-team", { teamId: currentTeam._id });
+    }
+
     // Show modal
     document.getElementById("teamModal").classList.add("show");
   } catch (error) {
@@ -201,74 +419,15 @@ async function openTeamModal(teamId) {
 
 // Close team modal
 function closeTeamModal() {
+  // Leave team room
+  if (socket && currentTeam) {
+    socket.emit("leave-team", { teamId: currentTeam._id });
+    socket.disconnect();
+  }
+
   document.getElementById("teamModal").classList.remove("show");
   currentTeam = null;
   teamMembers = [];
-}
-
-// Copy invite code
-function copyInviteCode() {
-  const code = document.getElementById("teamInviteCode").textContent;
-  navigator.clipboard.writeText(code);
-  alert("Đã copy mã mời!");
-}
-
-// Load members
-function loadMembers() {
-  const membersList = document.getElementById("membersList");
-
-  membersList.innerHTML = currentTeam.members
-    .map((member) => {
-      const isOwner = currentTeam.owner._id === member.user._id;
-      const role = isOwner ? "owner" : member.role;
-
-      return `
-      <div class="member-item">
-        <div class="member-info">
-          <div class="member-avatar">${member.user.name
-            .charAt(0)
-            .toUpperCase()}</div>
-          <div class="member-details">
-            <span class="member-name">${member.user.name}</span>
-            <span class="member-email">${member.user.email}</span>
-          </div>
-        </div>
-        <span class="team-role-badge ${role}">${
-        role === "owner"
-          ? "Chủ nhóm"
-          : role === "admin"
-          ? "Quản trị"
-          : "Thành viên"
-      }</span>
-      </div>
-    `;
-    })
-    .join("");
-}
-
-// Add assignment input
-function addAssignment() {
-  const assignmentsList = document.getElementById("assignmentsList");
-
-  const assignmentItem = document.createElement("div");
-  assignmentItem.className = "assignment-item";
-
-  assignmentItem.innerHTML = `
-    <div class="input-wrapper">
-      <select class="select-input assignment-user-select" required>
-        <option value="">Chọn thành viên...</option>
-        ${teamMembers
-          .map((m) => `<option value="${m.user._id}">${m.user.name}</option>`)
-          .join("")}
-      </select>
-    </div>
-    <div class="input-wrapper">
-      <input type="datetime-local" class="assignment-due-input" placeholder="Thời hạn">
-    </div>
-    <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
-  `;
-
-  assignmentsList.appendChild(assignmentItem);
 }
 
 // Create team task form
@@ -627,5 +786,60 @@ document
     }
   });
 
-// Initialize
-loadCurrentUser();
+// Load members
+function loadMembers() {
+  const membersList = document.getElementById("membersList");
+
+  membersList.innerHTML = currentTeam.members
+    .map((member) => {
+      const isOwner = currentTeam.owner._id === member.user._id;
+      const role = isOwner ? "owner" : member.role;
+
+      return `
+      <div class="member-item">
+        <div class="member-info">
+          <div class="member-avatar">${member.user.name
+            .charAt(0)
+            .toUpperCase()}</div>
+          <div class="member-details">
+            <span class="member-name">${member.user.name}</span>
+            <span class="member-email">${member.user.email}</span>
+          </div>
+        </div>
+        <span class="team-role-badge ${role}">${
+        role === "owner"
+          ? "Chủ nhóm"
+          : role === "admin"
+          ? "Quản trị"
+          : "Thành viên"
+      }</span>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+// Add assignment input
+function addAssignment() {
+  const assignmentsList = document.getElementById("assignmentsList");
+
+  const assignmentItem = document.createElement("div");
+  assignmentItem.className = "assignment-item";
+
+  assignmentItem.innerHTML = `
+    <div class="input-wrapper">
+      <select class="select-input assignment-user-select" required>
+        <option value="">Chọn thành viên...</option>
+        ${teamMembers
+          .map((m) => `<option value="${m.user._id}">${m.user.name}</option>`)
+          .join("")}
+      </select>
+    </div>
+    <div class="input-wrapper">
+      <input type="datetime-local" class="assignment-due-input" placeholder="Thời hạn">
+    </div>
+    <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+  `;
+
+  assignmentsList.appendChild(assignmentItem);
+}

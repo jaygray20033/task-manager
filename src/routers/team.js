@@ -500,4 +500,32 @@ router.post("/teams/:id/members", auth, async (req, res) => {
   }
 });
 
+router.get("/teams/:id/messages", auth, async (req, res) => {
+  try {
+    const Message = require("../models/message");
+    const team = await Team.findById(req.params.id);
+
+    if (!team) {
+      return res.status(404).send({ error: "Team not found" });
+    }
+
+    if (!team.isMember(req.user._id)) {
+      return res.status(403).send({ error: "Access denied" });
+    }
+
+    const limit = Number.parseInt(req.query.limit) || 50;
+    const skip = Number.parseInt(req.query.skip) || 0;
+
+    const messages = await Message.find({ team: team._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("sender", "name email");
+
+    res.send(messages.reverse());
+  } catch (e) {
+    res.status(500).send({ error: e.message });
+  }
+});
+
 module.exports = router;

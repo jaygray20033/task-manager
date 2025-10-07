@@ -2,14 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const http = require("http");
+const socketIO = require("socket.io");
 require("./db/mongoose");
 const userRouter = require("./routers/user");
 const taskRouter = require("./routers/task");
 const teamRouter = require("./routers/team");
 const { startTaskReminderJob } = require("./jobs/taskReminder");
+const { setupSocketHandlers } = require("./sockets/chat");
 const { testSendGridConnection } = require("./emails/account");
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 const port = process.env.PORT || 3000;
 
 app.use(
@@ -62,7 +72,9 @@ app.get("/reset-password", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/reset-password.html"));
 });
 
-app.listen(port, async () => {
+setupSocketHandlers(io);
+
+server.listen(port, async () => {
   console.log(`Server is up on: http://localhost:${port}`);
 
   startTaskReminderJob();
