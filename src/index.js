@@ -19,6 +19,7 @@ const io = socketIO(server, {
     origin: "*",
     methods: ["GET", "POST"],
   },
+  pingTimeout: 60000, // Tăng timeout để tránh ngắt kết nối sau 5 phút
 });
 const port = process.env.PORT || 3000;
 
@@ -79,6 +80,17 @@ app.get("/forgot-password", (req, res) => {
 
 app.get("/reset-password", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/reset-password.html"));
+});
+
+// Log lỗi kết nối Socket.IO để debug
+io.engine.on("connection_error", (err) => {
+  console.log(
+    "Socket.IO connection error:",
+    err.req,
+    err.code,
+    err.message,
+    err.context
+  );
 });
 
 setupSocketHandlers(io);

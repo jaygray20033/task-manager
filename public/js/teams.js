@@ -180,6 +180,16 @@ async function loadTeams() {
 }
 
 function initializeSocket() {
+  socket = io(API_URL, {
+    auth: {
+      token: token,
+    },
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionAttempts: 5,
+    timeout: 10000,
+    transports: ["websocket"],
+  });
   if (socketInitialized) {
     console.log("[v0] Socket already initialized, skipping");
     return;
