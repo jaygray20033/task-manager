@@ -7,41 +7,72 @@ const setupSocketHandlers = (io) => {
   // Socket.IO middleware for authentication
   io.use(async (socket, next) => {
     try {
+      console.log(
+        "[v0] Socket authentication attempt from:",
+        socket.handshake.address
+      );
+
       const token = socket.handshake.auth.token;
       if (!token) {
-        return next(new Error("Authentication error"));
+        console.error("[v0] No token provided in socket handshake");
+        return next(new Error("Authentication error: No token provided"));
       }
 
+      console.log("[v0] Verifying JWT token...");
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("[v0] Token decoded successfully, user ID:", decoded._id);
+
       const user = await User.findOne({
         _id: decoded._id,
         "tokens.token": token,
       });
 
       if (!user) {
-        return next(new Error("Authentication error"));
+        console.error("[v0] User not found or token not in tokens array");
+        console.error("[v0] User ID from token:", decoded._id);
+        return next(new Error("Authentication error: Invalid token"));
       }
 
+      console.log(
+        "[v0] User authenticated successfully:",
+        user.name,
+        user.email
+      );
       socket.user = user;
       socket.token = token;
       next();
     } catch (error) {
-      next(new Error("Authentication error"));
+      console.error("[v0] Socket authentication failed:", error.message);
+      if (error.name === "JsonWebTokenError") {
+        return next(new Error("Authentication error: Invalid token format"));
+      } else if (error.name === "TokenExpiredError") {
+        return next(new Error("Authentication error: Token expired"));
+      }
+      next(new Error(`Authentication error: ${error.message}`));
     }
   });
 
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.user.name} (${socket.user._id})`);
+    console.log(
+      `[v0] ✓ User connected: ${socket.user.name} (${socket.user.email}) - Socket ID: ${socket.id}`
+    );
 
     // Join team room
-    socket.on("join-team", async (teamId) => {
+    socket.on("join-team", async ({ teamId }) => {
       try {
+        console.log(
+          `[v0] User ${socket.user.name} attempting to join team ${teamId}`
+        );
+
         const team = await Team.findOne({
           _id: teamId,
           "members.user": socket.user._id,
         });
 
         if (!team) {
+          console.error(
+            `[v0] User ${socket.user.name} is not a member of team ${teamId}`
+          );
           socket.emit("error", {
             message: "You are not a member of this team",
           });
@@ -49,7 +80,9 @@ const setupSocketHandlers = (io) => {
         }
 
         socket.join(`team-${teamId}`);
-        console.log(`User ${socket.user.name} joined team ${teamId}`);
+        console.log(
+          `[v0] User ${socket.user.name} successfully joined team ${teamId}`
+        );
 
         // Load recent messages (last 50)
         const messages = await Message.find({ team: teamId })
@@ -58,6 +91,9 @@ const setupSocketHandlers = (io) => {
           .populate("sender", "name email")
           .lean();
 
+        console.log(
+          `[v0] Loaded ${messages.length} messages for team ${teamId}`
+        );
         socket.emit("load-messages", messages.reverse());
 
         // Notify others that user joined
@@ -67,15 +103,15 @@ const setupSocketHandlers = (io) => {
           timestamp: new Date(),
         });
       } catch (error) {
-        console.error("Error joining team:", error);
+        console.error("[v0] Error joining team:", error);
         socket.emit("error", { message: "Failed to join team chat" });
       }
     });
 
     // Leave team room
-    socket.on("leave-team", (teamId) => {
+    socket.on("leave-team", ({ teamId }) => {
       socket.leave(`team-${teamId}`);
-      console.log(`User ${socket.user.name} left team ${teamId}`);
+      console.log(`[v0] User ${socket.user.name} left team ${teamId}`);
 
       socket.to(`team-${teamId}`).emit("user-left", {
         userId: socket.user._id,
@@ -126,7 +162,7 @@ const setupSocketHandlers = (io) => {
           updatedAt: message.updatedAt,
         });
       } catch (error) {
-        console.error("Error sending message:", error);
+        console.error("[v0] Error sending message:", error);
         socket.emit("error", { message: "Failed to send message" });
       }
     });
@@ -142,7 +178,7 @@ const setupSocketHandlers = (io) => {
 
     // Disconnect
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.user.name}`);
+      console.log(`[v0] User disconnected: ${socket.user.name}`);
     });
   });
 };

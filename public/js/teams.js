@@ -8,6 +8,7 @@ let currentTeam = null;
 let teamMembers = [];
 let socket = null;
 let typingTimeout = null;
+let socketInitialized = false;
 
 // Declare io variable
 const io = window.io;
@@ -27,6 +28,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 // Load current user and teams on page load
 loadCurrentUser().then(() => {
   loadTeams();
+  initializeSocket();
 });
 
 // Create team form
@@ -178,55 +180,151 @@ async function loadTeams() {
 }
 
 function initializeSocket() {
-  if (socket) {
-    socket.disconnect();
+  if (socketInitialized) {
+    console.log("[v0] Socket already initialized, skipping");
+    return;
   }
 
-  socket = io(API_URL, {
-    auth: {
-      token: token,
-    },
-  });
+  console.log("[v0] ========== SOCKET INITIALIZATION ==========");
+  console.log("[v0] API_URL:", API_URL);
+  console.log("[v0] window.location.hostname:", window.location.hostname);
+  console.log("[v0] window.location.origin:", window.location.origin);
+  console.log("[v0] Token available:", !!token);
+  console.log("[v0] Token length:", token ? token.length : 0);
+  console.log("[v0] io function available:", typeof io);
 
-  socket.on("connect", () => {
-    console.log("[v0] Socket connected");
-    updateChatStatus("connected");
-  });
+  socketInitialized = true;
 
-  socket.on("disconnect", () => {
-    console.log("[v0] Socket disconnected");
-    updateChatStatus("disconnected");
-  });
+  try {
+    socket = io(API_URL, {
+      auth: {
+        token: token,
+      },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
+      timeout: 10000,
+      transports: ["websocket", "polling"],
+    });
 
-  socket.on("error", (error) => {
-    console.error("[v0] Socket error:", error);
-    alert(error.message);
-  });
+    console.log("[v0] Socket object created:", !!socket);
+    console.log("[v0] Socket ID (before connect):", socket.id);
 
-  socket.on("load-messages", (messages) => {
-    console.log("[v0] Loaded messages:", messages.length);
-    displayMessages(messages);
-  });
+    socket.on("connect", () => {
+      console.log("[v0] ========== SOCKET CONNECTED ==========");
+      console.log("[v0] Socket ID:", socket.id);
+      console.log("[v0] Socket connected:", socket.connected);
+      console.log("[v0] Transport:", socket.io.engine.transport.name);
+      updateChatStatus("connected");
 
-  socket.on("new-message", (message) => {
-    console.log("[v0] New message received:", message);
-    appendMessage(message);
-  });
+      const chatMessages = document.getElementById("chatMessages");
+      if (chatMessages) {
+        const existingErrors = chatMessages.querySelectorAll(".message-error");
+        existingErrors.forEach((error) => error.remove());
+      }
 
-  socket.on("user-joined", (data) => {
-    console.log("[v0] User joined:", data.userName);
-    appendSystemMessage(`${data.userName} đã tham gia chat`);
-  });
+      if (currentTeam) {
+        console.log("[v0] Rejoining team after reconnect:", currentTeam._id);
+        socket.emit("join-team", { teamId: currentTeam._id });
+      }
+    });
 
-  socket.on("user-left", (data) => {
-    console.log("[v0] User left:", data.userName);
-    appendSystemMessage(`${data.userName} đã rời khỏi chat`);
-  });
+    socket.on("disconnect", (reason) => {
+      console.log("[v0] ========== SOCKET DISCONNECTED ==========");
+      console.log("[v0] Reason:", reason);
+      console.log("[v0] Socket connected:", socket.connected);
+      updateChatStatus("disconnected");
+    });
 
-  socket.on("user-typing", (data) => {
-    console.log("[v0] User typing:", data.userName, data.isTyping);
-    showTypingIndicator(data.userName, data.isTyping);
-  });
+    socket.on("connect_error", (error) => {
+      console.error("[v0] ========== SOCKET CONNECTION ERROR ==========");
+      console.error("[v0] Error message:", error.message);
+      console.error("[v0] Error type:", error.type);
+      console.error("[v0] Error description:", error.description);
+      console.error("[v0] Full error:", error);
+      updateChatStatus("disconnected");
+
+      if (
+        error.message.includes("Authentication") ||
+        error.message.includes("authentication")
+      ) {
+        console.error("[v0] Authentication failed - token might be invalid");
+        showChatError("Lỗi xác thực. Vui lòng đăng xuất và đăng nhập lại.");
+      } else if (error.message.includes("timeout")) {
+        console.error(
+          "[v0] Connection timeout - server might be slow or unreachable"
+        );
+        showChatError(
+          "Kết nối timeout. Server có thể đang chậm hoặc không khả dụng."
+        );
+      } else {
+        console.error("[v0] Connection failed - server might not be running");
+        showChatError(
+          `Không thể kết nối đến server tại ${API_URL}. Vui lòng kiểm tra server đang chạy.`
+        );
+      }
+    });
+
+    socket.on("reconnect_attempt", (attemptNumber) => {
+      console.log("[v0] Reconnection attempt:", attemptNumber);
+      updateChatStatus("connecting");
+    });
+
+    socket.on("reconnect_failed", () => {
+      console.error("[v0] Reconnection failed after all attempts");
+      updateChatStatus("disconnected");
+      showChatError("Không thể kết nối lại. Vui lòng tải lại trang.");
+    });
+
+    socket.on("error", (error) => {
+      console.error("[v0] Socket error:", error);
+      showChatError(error.message || "Đã xảy ra lỗi");
+    });
+
+    socket.on("load-messages", (messages) => {
+      console.log("[v0] Loaded messages:", messages.length);
+      displayMessages(messages);
+    });
+
+    socket.on("new-message", (message) => {
+      console.log("[v0] New message received:", message);
+      appendMessage(message);
+    });
+
+    socket.on("user-joined", (data) => {
+      console.log("[v0] User joined:", data.userName);
+      appendSystemMessage(`${data.userName} đã tham gia chat`);
+    });
+
+    socket.on("user-left", (data) => {
+      console.log("[v0] User left:", data.userName);
+      appendSystemMessage(`${data.userName} đã rời khỏi chat`);
+    });
+
+    socket.on("user-typing", (data) => {
+      console.log("[v0] User typing:", data.userName, data.isTyping);
+      showTypingIndicator(data.userName, data.isTyping);
+    });
+  } catch (error) {
+    console.error("[v0] ========== SOCKET INITIALIZATION ERROR ==========");
+    console.error("[v0] Error:", error);
+    showChatError(`Lỗi khởi tạo socket: ${error.message}`);
+  }
+}
+
+function showChatError(message) {
+  const chatMessages = document.getElementById("chatMessages");
+
+  const existingErrors = chatMessages.querySelectorAll(".message-error");
+  existingErrors.forEach((error) => error.remove());
+
+  const errorDiv = document.createElement("div");
+  errorDiv.className = "message-error";
+  errorDiv.style.cssText =
+    "padding: 12px; margin: 8px; background: #fee; border-left: 3px solid #f00; color: #c00; border-radius: 4px;";
+  errorDiv.textContent = `⚠️ ${message}`;
+  chatMessages.appendChild(errorDiv);
+  scrollToBottom();
 }
 
 function updateChatStatus(status) {
@@ -239,6 +337,8 @@ function updateChatStatus(status) {
     statusText.textContent = "Đã kết nối";
   } else if (status === "disconnected") {
     statusText.textContent = "Mất kết nối";
+  } else if (status === "connecting") {
+    statusText.textContent = "Đang kết nối...";
   } else {
     statusText.textContent = "Đang kết nối...";
   }
@@ -336,7 +436,6 @@ document.getElementById("chatForm").addEventListener("submit", (e) => {
 
   input.value = "";
 
-  // Stop typing indicator
   socket.emit("typing", {
     teamId: currentTeam._id,
     isTyping: false,
@@ -346,18 +445,15 @@ document.getElementById("chatForm").addEventListener("submit", (e) => {
 document.getElementById("chatInput").addEventListener("input", (e) => {
   if (!socket || !currentTeam) return;
 
-  // Clear previous timeout
   if (typingTimeout) {
     clearTimeout(typingTimeout);
   }
 
-  // Emit typing event
   socket.emit("typing", {
     teamId: currentTeam._id,
     isTyping: true,
   });
 
-  // Stop typing after 2 seconds of no input
   typingTimeout = setTimeout(() => {
     socket.emit("typing", {
       teamId: currentTeam._id,
@@ -369,6 +465,8 @@ document.getElementById("chatInput").addEventListener("input", (e) => {
 // Open team modal
 async function openTeamModal(teamId) {
   try {
+    console.log("[v0] Opening team modal for teamId:", teamId);
+
     const response = await fetch(`${API_URL}/teams/${teamId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -377,7 +475,14 @@ async function openTeamModal(teamId) {
 
     if (!response.ok) throw new Error("Failed to load team");
 
+    if (currentTeam && socket) {
+      console.log("[v0] Leaving previous team:", currentTeam._id);
+      socket.emit("leave-team", { teamId: currentTeam._id });
+    }
+
     currentTeam = await response.json();
+    console.log("[v0] Loaded team:", currentTeam.name);
+
     teamMembers = currentTeam.members;
 
     document.getElementById("modalTeamName").textContent = currentTeam.name;
@@ -388,7 +493,6 @@ async function openTeamModal(teamId) {
     document.getElementById("memberCount").textContent =
       currentTeam.members.length;
 
-    // Show delete button if user is owner
     const deleteTeamBtn = document.getElementById("deleteTeamBtn");
     if (currentTeam.owner._id === currentUser?._id) {
       deleteTeamBtn.style.display = "inline-block";
@@ -396,33 +500,33 @@ async function openTeamModal(teamId) {
       deleteTeamBtn.style.display = "none";
     }
 
-    // Load members
     loadMembers();
 
-    // Load team tasks
     loadTeamTasks(teamId);
 
-    // Initialize socket for chat
-    initializeSocket();
-
-    // Join team room
-    if (socket) {
-      socket.emit("join-team", { teamId: currentTeam._id });
+    if (!socketInitialized) {
+      console.log("[v0] Initializing socket for first time");
+      initializeSocket();
     }
 
-    // Show modal
+    if (socket && socket.connected) {
+      console.log("[v0] Socket already connected, joining team immediately");
+      socket.emit("join-team", { teamId: currentTeam._id });
+    } else {
+      console.log("[v0] Socket not connected yet, will join on connect event");
+    }
+
     document.getElementById("teamModal").classList.add("show");
   } catch (error) {
+    console.error("[v0] Error opening team modal:", error);
     alert(error.message);
   }
 }
 
 // Close team modal
 function closeTeamModal() {
-  // Leave team room
   if (socket && currentTeam) {
     socket.emit("leave-team", { teamId: currentTeam._id });
-    socket.disconnect();
   }
 
   document.getElementById("teamModal").classList.remove("show");
@@ -439,7 +543,6 @@ document
     const description = document.getElementById("teamTaskDescription").value;
     const category = document.getElementById("teamTaskCategory").value;
 
-    // Get assignments
     const assignmentItems = document.querySelectorAll(".assignment-item");
     const assignments = [];
 

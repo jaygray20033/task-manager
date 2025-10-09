@@ -44,6 +44,15 @@ app.use(userRouter);
 app.use(taskRouter);
 app.use(teamRouter);
 
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    mongodb: "connected",
+  });
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
 });
