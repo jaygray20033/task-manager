@@ -12,9 +12,15 @@ const setupSocketHandlers = (io) => {
         socket.handshake.address
       );
 
+      // Added check for auth object
+      if (!socket.handshake.auth) {
+        console.error("[v0] No auth object provided in socket handshake");
+        return next(new Error("Authentication error: No auth provided"));
+      }
+
       const token = socket.handshake.auth.token;
       if (!token) {
-        console.error("[v0] No token provided in socket handshake");
+        console.error("[v0] No token provided in auth object");
         return next(new Error("Authentication error: No token provided"));
       }
 
